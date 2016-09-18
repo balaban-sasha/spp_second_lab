@@ -11,10 +11,18 @@ namespace spp_second_lab_tests
         [TestMethod]
         public void TestMethod1()
         {
-            Action<int, int> ex =
-        (x, y) => Console.WriteLine("Write {0} and {1}", x, y);
-            WeakDelegate weakDelegate = new WeakDelegate(ex);
-            weakDelegate.GetDelegate();
+            Func<string, int, bool, bool> f1 = (name, age, active) =>
+            {
+                if (name == "Jon" && age == 40 && active)
+                {
+                    return true;
+                }
+                return false;
+            };
+            WeakDelegate weakDelegate = new WeakDelegate(f1);
+            Delegate d=weakDelegate.GetDelegate();
+            Console.WriteLine(d);
+            Console.WriteLine(weakDelegate.Weak.DynamicInvoke("Jon",40,true));
 
         }
     }
