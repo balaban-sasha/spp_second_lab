@@ -13,16 +13,15 @@ namespace spp_lab_2
         static void Main(string[] args)
         {
         }
+
+
     }
     public class WeakDelegate
     {
-        public Delegate Weak;
-        private WeakReference temp;
         public WeakReference Target;
         public MethodInfo Method;
         public WeakDelegate(Delegate ex)
         {
-            this.Weak = ex;
             this.Method = (MethodInfo)ex.Method;
             this.Target =new WeakReference(ex.Target);
             
@@ -30,10 +29,13 @@ namespace spp_lab_2
 
         public Delegate GetDelegate()
         {
-            return Delegate.CreateDelegate(Expression.GetDelegateType(
-                (from parameter in Method.GetParameters() select parameter.ParameterType)
-                .Concat(new[] { Method.ReturnType })
-                    .ToArray()), Target.Target, Method);
+            if (Target.IsAlive)
+                return Delegate.CreateDelegate(Expression.GetDelegateType(
+                    (from parameter in Method.GetParameters() select parameter.ParameterType)
+                    .Concat(new[] { Method.ReturnType })
+                        .ToArray()), Target.Target, Method);
+            else
+                return null;
         }
       
     }
