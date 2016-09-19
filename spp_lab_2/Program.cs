@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,41 +33,48 @@ namespace spp_lab_2
                     return false;
             }
         }
+
         static void Main(string[] args)
         {
-            WeakDelegate weakDelegate= new WeakDelegate((Func<int, int, int,int,int>)GetFunction.GetRuslt);
+            Delegate weakDelegate= new WeakDelegate((Func<int, int, int,int,int>)GetFunction.GetRuslt);
 
-            Console.WriteLine(weakDelegate.GetDelegate().DynamicInvoke(10, 20, 4, 1));
+            Console.WriteLine(weakDelegate.DynamicInvoke(10, 20, 4, 1));
             weakDelegate = new WeakDelegate((Func<string,bool,bool,string,int,int,bool>)GetFunction.GetResultTwo);
-
-            Console.WriteLine(weakDelegate.GetDelegate().DynamicInvoke("University",true,false,"BSUIR",3, 2016));
+            Console.WriteLine(weakDelegate.DynamicInvoke("University",true,false,"BSUIR",3, 2016));
             Console.ReadKey();
         }
-      
-
     }
     public class WeakDelegate
     {
         public WeakReference target;
         public MethodInfo method;
+
+        public Delegate Weak {
+            get {
+                if (target.IsAlive)
+                    return Delegate.CreateDelegate(Expression.GetDelegateType(
+                        (from parameter in method.GetParameters() select parameter.ParameterType)
+                        .Concat(new[] { method.ReturnType })
+                            .ToArray()), target.Target, method);
+                else
+                    return null;
+            }
+            set { }
+        }
+
         public WeakDelegate(Delegate ex)
         {
             this.method = (MethodInfo)ex.Method;
             this.target =new WeakReference(ex.Target);
-            
+        }
+        
+        public static implicit operator Delegate(WeakDelegate ex)
+        {
+            return ex.Weak;
+
         }
 
-        public Delegate GetDelegate()
-        {
-            if (target.IsAlive)
-                return Delegate.CreateDelegate(Expression.GetDelegateType(
-                    (from parameter in method.GetParameters() select parameter.ParameterType)
-                    .Concat(new[] { method.ReturnType })
-                        .ToArray()), target.Target, method);
-            else
-                return null;
-        }
-      
+
     }
 
 }
