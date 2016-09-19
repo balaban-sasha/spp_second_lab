@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace spp_second_lab_tests
 {
-   
+
     [TestClass]
     public class TestForSecondLab
     {
@@ -15,6 +15,43 @@ namespace spp_second_lab_tests
             {
                 return new GetFunctionResult();
             }
+        }
+        [TestMethod]
+        public void TestOnEmptyFunctionBeforeCollection()
+        {
+            WeakDelegate weakDelegate = new WeakDelegate((Action)GetFunction.EmptyFunc);
+            Assert.IsNotNull(weakDelegate.GetDelegate());
+        }
+        [TestMethod]
+        public void TestOnEmptyFunctionAfterCollection()
+        {
+            WeakDelegate weakDelegate = new WeakDelegate((Action)GetFunction.EmptyFunc);
+            GC.Collect();
+            Assert.IsNull(weakDelegate.GetDelegate());
+        }
+        [TestMethod]
+        public void TestOnGoodPerson()
+        {
+            WeakDelegate weakDelegate = new WeakDelegate((Func<string, int, bool, bool>)GetFunction.CheckOnGoodPerson);
+            Assert.IsTrue((bool)weakDelegate.GetDelegate().DynamicInvoke("Sasha", 20, true));
+        }
+        [TestMethod]
+        public void TestOnBadPerson()
+        {
+            WeakDelegate weakDelegate = new WeakDelegate((Func<string, int, bool, bool>)GetFunction.CheckOnGoodPerson);
+            Assert.IsFalse((bool)weakDelegate.GetDelegate().DynamicInvoke("Vita", 20, true));
+        }
+        [TestMethod]
+        public void TestOnGoodVariablesForWords()
+        {
+            WeakDelegate weakDelegate = new WeakDelegate((Func<string, string,string, string>)GetFunction.GetEasyString);
+            Assert.AreEqual((string)weakDelegate.GetDelegate().DynamicInvoke("good day", " how are you","?"), "good day how are you?");
+        }
+        [TestMethod]
+        public void TestOnBadVariablesForWords()
+        {
+            WeakDelegate weakDelegate = new WeakDelegate((Func<string, string,string, string>)GetFunction.GetEasyString);
+            Assert.AreNotEqual((string)weakDelegate.GetDelegate().DynamicInvoke("good day", " how are you","!"), "good day how are you?");
         }
         [TestMethod]
         public void TestOnGoodVariables()

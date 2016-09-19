@@ -13,7 +13,7 @@ namespace spp_lab_2
         static void Main(string[] args)
         {
         }
-
+        
 
     }
     public class WeakDelegate
@@ -39,4 +39,5 @@ namespace spp_lab_2
         }
       
     }
+
 }
