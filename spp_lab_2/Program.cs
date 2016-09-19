@@ -10,30 +10,59 @@ namespace spp_lab_2
 {
     public class Program
     {
+        static private GetFunctionResult GetFunction
+        {
+            get
+            {
+                return new GetFunctionResult();
+            }
+        }
+        internal class GetFunctionResult
+        {
+            internal int GetRuslt(int arg1, int arg2, int arg3, int arg4)
+            {
+                return (arg1 + arg2) / (arg3 + arg4);
+            }
+
+            internal bool GetResultTwo(string arg1, bool arg2, bool arg3, string arg4, int arg5, int arg6)
+            {
+                if ((arg1 == "University") && (arg2 == true) && (arg3 == false) && (arg4 == "BSUIR") && (arg5 == 3)&&(arg6==2016))
+                    return true;
+                else
+                    return false;
+            }
+        }
         static void Main(string[] args)
         {
+            WeakDelegate weakDelegate= new WeakDelegate((Func<int, int, int,int,int>)GetFunction.GetRuslt);
+
+            Console.WriteLine(weakDelegate.GetDelegate().DynamicInvoke(10, 20, 4, 1));
+            weakDelegate = new WeakDelegate((Func<string,bool,bool,string,int,int,bool>)GetFunction.GetResultTwo);
+
+            Console.WriteLine(weakDelegate.GetDelegate().DynamicInvoke("University",true,false,"BSUIR",3, 2016));
+            Console.ReadKey();
         }
-        
+      
 
     }
     public class WeakDelegate
     {
-        public WeakReference Target;
-        public MethodInfo Method;
+        public WeakReference target;
+        public MethodInfo method;
         public WeakDelegate(Delegate ex)
         {
-            this.Method = (MethodInfo)ex.Method;
-            this.Target =new WeakReference(ex.Target);
+            this.method = (MethodInfo)ex.Method;
+            this.target =new WeakReference(ex.Target);
             
         }
 
         public Delegate GetDelegate()
         {
-            if (Target.IsAlive)
+            if (target.IsAlive)
                 return Delegate.CreateDelegate(Expression.GetDelegateType(
-                    (from parameter in Method.GetParameters() select parameter.ParameterType)
-                    .Concat(new[] { Method.ReturnType })
-                        .ToArray()), Target.Target, Method);
+                    (from parameter in method.GetParameters() select parameter.ParameterType)
+                    .Concat(new[] { method.ReturnType })
+                        .ToArray()), target.Target, method);
             else
                 return null;
         }
